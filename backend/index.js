@@ -18,9 +18,9 @@ mongoose.connect(process.env.MONGO_DB_URI , {useNewUrlParser: true , useUnifiedT
 
 
 
-const userRoutes = require("./routes/userRoutes")
-const itemRoutes = require("./routes/itemRoutes")
-const orderRoutes = require("./routes/orderRoutes")
+
+const CarRoutes = require("./Routes/CarRoutes")
+
 const { verifyTokenExiry } = require("./utils/Authenticate")
 
 app.use(express.json())
@@ -33,18 +33,21 @@ app.use(cors({
     origin: "*"
 }))
 
-app.use("/api/user" , userRoutes)
-app.use("/api/item" , itemRoutes)
-app.use("/api/order" , orderRoutes)
 
+app.use("/" , CarRoutes)
+
+app.get("/",(req,res)=>{
+res.send("hello world")
+});
 app.get("/api" , (req , res)=>{
     res.send("Hello World")
 });
 
-app.listen(3000 , ()=>{
-    console.log("App lisyemomng on port 3000");
-})
+const PORT = process.env.PORT || 3000;
 
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
 
 app.get("/verify" , verifyTokenExiry)
 
@@ -52,21 +55,4 @@ app.get("/config" , (req , res) =>{
     res.json({PublishAbleKey:process.env.STRIPE_PUBLISHABLE_KEY})
 })
 
-
-app.post("/create-payment-intent" , async(req , res)=>{
-
-    console.log("here")
-   try{
-    const paymentIntent = await stripe.paymentIntents.create({
-        amount: 1099,
-        currency: 'usd',
-        payment_method_types: ['card'],
-  });
-
-   res.json({clientSecret:paymentIntent.client_secret})
-   }catch(err){
-    console.log(err)
-    res.json({err})
-   }
-})
 
